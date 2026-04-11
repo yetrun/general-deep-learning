@@ -1,0 +1,17 @@
+name: general-dl
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - setuptools>=68,<70
+  - numpy
+  - ruff
+  - pytest
+  - pytest-mock
+  - tensorflow
+  - keras
+  - pip:
+      - gradio
+variables:
+  ENV: test

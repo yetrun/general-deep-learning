@@ -1,0 +1,15 @@
+name: general-dl
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - numpy
+  - tensorflow
+  - tensorflow-text
+  - keras
+  - pip:
+    - keras-hub
+    - gradio
+variables:
+  ENV: production

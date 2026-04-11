@@ -1,0 +1,10 @@
+# Generated from environment-linux.yml
+# Timestamp: 2026-03-27 11:42:52
+# Environment: production
+#
+numpy==2.1.3
+tensorflow==2.19.1
+tensorflow-text==2.19.0
+keras==3.13.2
+keras-hub==0.26.0
+gradio==6.9.0

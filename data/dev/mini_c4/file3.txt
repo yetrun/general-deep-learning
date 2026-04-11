@@ -1,0 +1,3 @@
+first document of third file
+second document of third file
+third document of third file
