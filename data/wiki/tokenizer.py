@@ -3,9 +3,9 @@
 提供 Wiki 数据集专用的分词器实现。
 """
 
-import keras
 import keras_hub
 from keras import layers
+from env.resolve import resolve_saved
 
 
 def sentence_piece():
@@ -16,12 +16,9 @@ def sentence_piece():
     Returns:
         (tokenizer, end_of_text, decode): 分词器、结束标记ID、解码函数
     """
-    # 用预训练好的分词器，也就是说我们不去自己训练分词器了
-    vocabulary_file = keras.utils.get_file(
-        origin="https://hf-mirror.com/mattdangerw/spiece/resolve/main/vocabulary.proto"
-    )
+    vocabulary_file = resolve_saved("vocab/sentencepiece/vocabulary.proto")
     # [Note] 依然需要 tensorflow_text 包
-    tokenizer = keras_hub.tokenizers.SentencePieceTokenizer(vocabulary_file)
+    tokenizer = keras_hub.tokenizers.SentencePieceTokenizer(str(vocabulary_file))
 
     end_of_text = tokenizer.token_to_id("<|endoftext|>")
 

@@ -105,6 +105,30 @@ def resolve_checkpoint(
     return max(files_with_number, key=lambda item: item[1])
 
 
+def describe_checkpoint_lookup(
+    dirs: list[pathlib.Path | str] | None = None,
+    path: pathlib.Path | str | None = None,
+    suffix: str | None = None
+) -> str:
+    resolved_dirs = _resolve_checkpoint_dirs(dirs)
+
+    parts = []
+    if path is not None:
+        parts.append(f"path={resolve_path(path)}")
+    if suffix is not None:
+        parts.append(f"suffix={suffix}")
+
+    if resolved_dirs:
+        dir_infos = []
+        for checkpoint_dir in resolved_dirs:
+            dir_infos.append(_describe_checkpoint_dir(checkpoint_dir))
+        parts.append("dirs=[" + "; ".join(dir_infos) + "]")
+    else:
+        parts.append("dirs=[]")
+
+    return "，".join(parts)
+
+
 def _resolve_checkpoint_dirs(
     dirs: list[pathlib.Path | str] | None
 ) -> list[pathlib.Path]:
@@ -141,6 +165,24 @@ def _collect_checkpoint_files(
                 continue
             files_with_number.append((file_path, extract_number_of_filename(file_path.stem)))
     return files_with_number
+
+
+def _describe_checkpoint_dir(checkpoint_dir: pathlib.Path) -> str:
+    exists = checkpoint_dir.exists()
+    if not exists:
+        return f"{checkpoint_dir} (missing)"
+
+    entries = []
+    for file_path in sorted(checkpoint_dir.iterdir()):
+        if file_path.is_file():
+            entries.append(file_path.name)
+
+    shown_entries = entries[:5]
+    if len(entries) > 5:
+        shown_entries.append("...")
+
+    files_text = ", ".join(shown_entries) if shown_entries else "<empty>"
+    return f"{checkpoint_dir} (files: {files_text})"
 
 
 def _is_checkpoint_file(file_path: pathlib.Path) -> bool:

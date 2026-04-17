@@ -10,7 +10,7 @@ import gradio as gr
 
 import pipeline.base.sample_functions as sample_functions
 from pipeline import Pipeline
-from pipeline.base.checkpoint import resolve_checkpoint
+from pipeline.base.checkpoint import describe_checkpoint_lookup, resolve_checkpoint
 from pipeline.base.generation import TextGenerator
 from pipeline.base.model_loader import load_inference_artifact_from_pipeline
 from env.resolve import display_path
@@ -65,7 +65,12 @@ class AppBuilderFromPipeline:
         checkpoint_path, _ = resolve_checkpoint(**checkpoint_rule)
 
         if checkpoint_path is None:
-            raise FileNotFoundError("未找到模型检查点文件")
+            lookup_info = describe_checkpoint_lookup(
+                dirs=checkpoint_rule.get("dirs"),
+                path=checkpoint_rule.get("path"),
+                suffix=checkpoint_rule.get("suffix")
+            )
+            raise FileNotFoundError(f"未找到模型检查点文件。查找信息: {lookup_info}")
         else:
             # 模型文件名和大小
             file_name = checkpoint_path.name

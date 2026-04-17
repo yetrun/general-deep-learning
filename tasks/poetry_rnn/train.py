@@ -71,7 +71,7 @@ pip_runner = PipelineRunner(test_pip, prod_pip)
 
 def resolve_pipeline():
     """根据环境变量获取 Pipeline 实例"""
-    env = os.environ.get("ENV", "test")
+    env = os.environ.get("ENV", "production")
     return prod_pip if env == "production" else test_pip
 
 

@@ -1,3 +1,3 @@
 import os
 
-ENV = os.environ.get("ENV", "test")
+ENV = os.environ.get("ENV", "production")

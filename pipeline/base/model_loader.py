@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 import keras
 
 from data.base import TokenizerBundle
-from pipeline.base.checkpoint import resolve_checkpoint
+from pipeline.base.checkpoint import describe_checkpoint_lookup, resolve_checkpoint
 from pipeline.base.generation import generate_with_training_model
 from pipeline.base.model_builder import ModelArtifact
 
@@ -25,7 +25,12 @@ def load_training_artifact_from_pipeline(
 
     checkpoint_path, _ = resolve_checkpoint(**checkpoint_rule)
     if checkpoint_path is None:
-        raise FileNotFoundError("未找到任何检查点文件")
+        lookup_info = describe_checkpoint_lookup(
+            dirs=checkpoint_rule.get("dirs"),
+            path=checkpoint_rule.get("path"),
+            suffix=checkpoint_rule.get("suffix")
+        )
+        raise FileNotFoundError(f"未找到任何检查点文件。查找信息: {lookup_info}")
 
     if checkpoint_path.suffix.lower() == ".keras":
         model = _load_keras_model(checkpoint_path)

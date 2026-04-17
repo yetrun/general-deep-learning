@@ -13,7 +13,7 @@ class Env(StrEnum):
     PRODUCTION = "production"
 
 def resolve_env[T](test_conf: T = Env.TEST, prod_conf: T = Env.PRODUCTION) -> T:
-    env = os.environ.get("ENV", str(Env.TEST))
+    env = os.environ.get("ENV", str(Env.PRODUCTION))
     return prod_conf if env == str(Env.PRODUCTION) else test_conf
 
 
