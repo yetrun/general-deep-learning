@@ -1,7 +1,7 @@
 """数据集抽象基类模块
 
-定义 DataBundle 抽象基类，统一数据集的接口规范。
-每个具体的数据集（如 Wiki、诗歌）都应该继承此类并实现相应方法。
+定义 TextDataBundle 抽象基类，统一文本数据集的接口规范。
+每个具体的文本数据集都应该继承此类并实现相应方法。
 """
 
 from abc import ABC, abstractmethod
@@ -13,9 +13,9 @@ import tensorflow as tf
 
 @dataclass
 class TokenizerBundle:
-    """分词器信息包装类
+    """文本任务的推理配套资源
 
-    将分词器相关的属性打包在一起，简化 DataBundle 接口。
+    它描述“模型之外，文本推理还需要什么”，同时也承载页面展示词表信息所需的数据。
     """
 
     tokenizer: Callable
@@ -26,8 +26,8 @@ class TokenizerBundle:
 
 
 @dataclass
-class DataBundle(ABC):
-    """数据集抽象基类
+class TextDataBundle(ABC):
+    """文本数据集抽象基类
 
     将数据加载、分词、统计等功能绑定在一起，提供统一的数据集接口。
 

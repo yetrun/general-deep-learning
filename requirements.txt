@@ -7,3 +7,4 @@ tensorflow==2.19.1
 tensorflow-text==2.19.0
 keras==3.13.2
 keras-hub==0.26.0
+matplotlib

@@ -7,7 +7,7 @@
 """
 
 from env.keras import enable_mixed_precision
-from tasks.common.gradio.pipeline_app import AppBuilderFromPipeline
+from tasks.common.gradio.text_app import TextGenerationAppBuilder
 from tasks.poetry_rnn.train import resolve_pipeline
 
 # 设置混合精度
@@ -17,7 +17,7 @@ enable_mixed_precision()
 pipeline = resolve_pipeline()
 
 # 创建应用
-app = AppBuilderFromPipeline(
+app = TextGenerationAppBuilder(
     pipeline=pipeline,
     title="诗歌生成器 (RNN)",
     placeholder="请输入诗句开头，例如：白日依山尽",

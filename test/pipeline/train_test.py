@@ -2,7 +2,6 @@ from typing import cast
 from unittest.mock import Mock
 
 import env.keras as keras_env
-import pipeline.pipeline as pipeline_module
 from pipeline.base.model_builder import ModelArtifact, ModelBuilder
 from test.pipeline.helpers import create_pipeline
 
@@ -13,6 +12,8 @@ def _assert_fit_kwargs(fit_kwargs):
     assert fit_kwargs["epochs"] == 1
     assert fit_kwargs["steps_per_epoch"] == 1
     assert len(fit_kwargs["callbacks"]) == 4
+    assert fit_kwargs["callbacks"][0].filepath.endswith("model_epoch_{epoch:03d}.weights.h5")
+    assert fit_kwargs["callbacks"][0].save_weights_only is True
 
     validation_batch = next(fit_kwargs["validation_data"].as_numpy_iterator())
     assert validation_batch[0].tolist() == [[1, 2, 3]]
@@ -32,9 +33,10 @@ def test_execute_runs_training_flow(tmp_path, monkeypatch):
     # 屏蔽混合精度与配置输出副作用，只关注训练主流程
     enable_mixed_precision = Mock()
     log_config = Mock()
+    resolve_checkpoint = Mock(return_value=(None, 0))
     monkeypatch.setattr(keras_env, "enable_mixed_precision", enable_mixed_precision)
-    monkeypatch.setattr(pipeline, "log_config", log_config)
-    monkeypatch.setattr(pipeline_module, "resolve_checkpoint", lambda **kwargs: (None, 0))
+    monkeypatch.setattr("pipeline.pipeline.Pipeline.log_config", lambda self: log_config())
+    monkeypatch.setattr(pipeline.model_stage.checkpoint_service, "resolve_checkpoint", resolve_checkpoint)
 
     # 执行训练流程
     pipeline.execute()
@@ -49,6 +51,12 @@ def test_execute_runs_training_flow(tmp_path, monkeypatch):
     model.compile.assert_called_once()
     model.summary.assert_called_once_with()
     model.fit.assert_called_once()
+    resolve_checkpoint.assert_called_once_with(
+        dirs=[pipeline.checkpoint_dir],
+        path=None,
+        epoch=None,
+        suffix=None
+    )
 
     # 验证 fit 接收到的关键训练参数与验证集
     _, fit_kwargs = model.fit.call_args

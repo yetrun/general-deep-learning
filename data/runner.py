@@ -17,7 +17,7 @@ Usage:
     runner()
 """
 
-from data.base import DataBundle
+from data.base import TextDataBundle
 from data.common import build_vocab_from_dataset
 from env.resolve import resolve_saved
 from env.runner import ActionRunner
@@ -49,7 +49,7 @@ class DatasetRunner(ActionRunner):
 
     def __init__(
         self,
-        dataset: DataBundle,
+        dataset: TextDataBundle,
         name: str,
         max_docs: int = 5,
         max_samples: int = 3,

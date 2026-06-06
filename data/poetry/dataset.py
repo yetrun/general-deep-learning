@@ -1,6 +1,6 @@
 """诗歌数据集主模块
 
-实现 PoetryDataset 类，继承自 DataBundle。
+实现 PoetryDataset 类，继承自 TextDataBundle。
 """
 
 import pathlib
@@ -9,14 +9,14 @@ from typing import Optional
 
 import tensorflow as tf
 
-from data.base import DataBundle, TokenizerBundle
+from data.base import TextDataBundle, TokenizerBundle
 from data.poetry.loader import doc_load_with_eot
 from data.poetry.transformer import transform
 from data.poetry.tokenizer import load_vectorizer
 
 
 @dataclass
-class PoetryDataset(DataBundle):
+class PoetryDataset(TextDataBundle):
     """诗歌数据集
 
     将文档加载、分词、统计等功能绑定在一起的数据集类。

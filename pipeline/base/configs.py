@@ -12,6 +12,12 @@ class CheckpointConfig:
 
 
 @dataclass
+class CheckpointSaveConfig:
+    checkpoint_filename: str
+    save_weights_only: bool
+
+
+@dataclass
 class ModelConfig:
     sequence_length: int = 256
     hidden_dim: int = 512
@@ -22,10 +28,10 @@ class ModelConfig:
 
 @dataclass
 class TrainingRule:
-    batch_size: int = 128
+    batch_size: int
+    validation_batches: int
     epochs: int = 1
-    steps_per_epoch: int = 30
-    validation_batches: int = 1
+    steps_per_epoch: int | None = None
 
 
 @dataclass

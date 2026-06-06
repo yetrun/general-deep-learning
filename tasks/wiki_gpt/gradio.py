@@ -7,7 +7,7 @@ Mini GPT Gradio 交互界面
 """
 
 from env.keras import enable_mixed_precision
-from tasks.common.gradio.pipeline_app import AppBuilderFromPipeline
+from tasks.common.gradio.text_app import TextGenerationAppBuilder
 from tasks.wiki_gpt.train import resolve_pipeline
 
 # 设置混合精度
@@ -17,7 +17,7 @@ enable_mixed_precision()
 pipeline = resolve_pipeline()
 
 # 创建应用
-app = AppBuilderFromPipeline(
+app = TextGenerationAppBuilder(
     pipeline=pipeline,
     title="Mini GPT 文本生成器",
     placeholder="请输入提示文本，例如：海上护卫队总司令部",

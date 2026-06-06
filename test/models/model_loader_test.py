@@ -4,19 +4,19 @@ import pathlib
 import numpy as np
 import tensorflow as tf
 
-from data.base import DataBundle, TokenizerBundle
+from data.base import TextDataBundle, TokenizerBundle
 from models.mini_gpt import GptModelBuilder
 from models.rnn import RNNModelBuilder
+from pipeline import Pipeline, build_text_pipeline
 from pipeline.base.configs import CheckpointConfig, CheckpointRules, GenerationRule, TrainingRule
 from pipeline.base.model_loader import (
     load_inference_artifact_from_pipeline,
     load_training_artifact_from_pipeline
 )
-from pipeline.pipeline import Pipeline
 
 
 @dataclass
-class DummyDataset(DataBundle):
+class DummyDataset(TextDataBundle):
     def doc_ds(self) -> tf.data.Dataset:
         return tf.data.Dataset.from_tensor_slices(["abc"])
 
@@ -43,7 +43,7 @@ def _create_pipeline(
     model_builder,
     checkpoint_path: pathlib.Path
 ) -> Pipeline:
-    return Pipeline(
+    return build_text_pipeline(
         name="test_task",
         dataset=DummyDataset(data_dir="unused", sequence_length=16),
         model_builder=model_builder,
@@ -92,13 +92,13 @@ def test_load_training_artifact_from_keras_checkpoint(tmp_path):
         default_dirs=[pipeline.checkpoint_dir]
     )
 
-    loaded_artifact, tokenizer_info = load_training_artifact_from_pipeline(
+    loaded_artifact, resource = load_training_artifact_from_pipeline(
         pipeline,
         checkpoint_rule
     )
 
     assert loaded_artifact.model.name == "mini_gpt"
-    assert tokenizer_info.vocab_size == 32
+    assert resource.tokenizer_bundle.vocab_size == 32
     for saved_weights, loaded_weights in zip(
         saved_artifact.model.get_weights(),
         loaded_artifact.model.get_weights()
@@ -125,13 +125,13 @@ def test_load_training_artifact_from_weights_checkpoint(tmp_path):
         default_dirs=[pipeline.checkpoint_dir]
     )
 
-    loaded_artifact, tokenizer_info = load_training_artifact_from_pipeline(
+    loaded_artifact, resource = load_training_artifact_from_pipeline(
         pipeline,
         checkpoint_rule
     )
 
     assert loaded_artifact.model.name == "rnn_training"
-    assert tokenizer_info.vocab_size == 32
+    assert resource.tokenizer_bundle.vocab_size == 32
     for saved_weights, loaded_weights in zip(
         saved_artifact.model.get_weights(),
         loaded_artifact.model.get_weights()

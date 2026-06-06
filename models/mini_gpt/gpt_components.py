@@ -8,9 +8,13 @@ GPT模型的共享组件模块：
 import keras
 from keras import layers, ops
 
+
 class PositionalEmbedding(keras.Layer):
     def __init__(self, sequence_length, input_dim, output_dim, **kwargs):
         super().__init__(**kwargs)
+        self.sequence_length = sequence_length
+        self.input_dim = input_dim
+        self.output_dim = output_dim
         self.token_embeddings = layers.Embedding(input_dim, output_dim)
         self.position_embeddings = layers.Embedding(sequence_length, output_dim)
 
@@ -23,6 +27,17 @@ class PositionalEmbedding(keras.Layer):
         embedded_positions = self.position_embeddings(positions)
         return embedded_tokens + embedded_positions
 
+    def get_config(self):
+        config = super().get_config()
+        config.update(
+            {
+                "sequence_length": self.sequence_length,
+                "input_dim": self.input_dim,
+                "output_dim": self.output_dim
+            }
+        )
+        return config
+
 
 class TransformerDecoder(keras.Layer):
     def __init__(self, hidden_dim, intermediate_dim, num_heads, **kwargs):
@@ -30,8 +45,10 @@ class TransformerDecoder(keras.Layer):
 
         self.hidden_dim = hidden_dim
         self.intermediate_dim = intermediate_dim
+        self.num_heads = num_heads
 
         key_dim = hidden_dim // num_heads
+        self.key_dim = key_dim
 
         # self-attention 层
         self.self_attention = layers.MultiHeadAttention(num_heads, key_dim, dropout=0.1)
@@ -59,3 +76,14 @@ class TransformerDecoder(keras.Layer):
         x = x + residual
         x = self.feed_forward_layernorm(x)
         return x
+
+    def get_config(self):
+        config = super().get_config()
+        config.update(
+            {
+                "hidden_dim": self.hidden_dim,
+                "intermediate_dim": self.intermediate_dim,
+                "num_heads": self.num_heads
+            }
+        )
+        return config

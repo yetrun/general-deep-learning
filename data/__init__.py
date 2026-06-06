@@ -1,6 +1,6 @@
 """数据集模块
 
-提供统一的数据集接口，包括 Wiki 和诗歌数据集。
+提供项目中的文本数据集和 COCO YOLO 数据集。
 
 Usage:
     from data import WikiDataset, PoetryDataset
@@ -18,8 +18,10 @@ Usage:
     poetry.stat(seq_length=100)
 """
 
-from data.base import DataBundle, TokenizerBundle
+from data.base import TextDataBundle, TokenizerBundle
+from data.coco import CocoYoloDataset
+from data.oxford_pets import OxfordPetsSegmentationDataset
 from data.wiki import WikiDataset
 from data.poetry import PoetryDataset
 
-__all__ = ["DataBundle", "TokenizerBundle", "WikiDataset", "PoetryDataset"]
+__all__ = ["TextDataBundle", "TokenizerBundle", "WikiDataset", "PoetryDataset", "CocoYoloDataset", "OxfordPetsSegmentationDataset"]

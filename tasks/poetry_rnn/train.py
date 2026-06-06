@@ -1,9 +1,7 @@
-import os
-
 from data import PoetryDataset
-from env.resolve import resolve_path, resolve_saved
+from env.resolve import resolve_env, resolve_path, resolve_saved
 from models.rnn import RNNModelBuilder
-from pipeline import CheckpointConfig, Pipeline, PipelineRunner
+from pipeline import CheckpointConfig, PipelineRunner, build_text_pipeline
 from pipeline.base.configs import CheckpointRules, GenerationRule, TrainingRule
 from pipeline.base.prompts_strategy import fixed_prompts
 from pipeline.base.sample_functions import top_k
@@ -26,7 +24,7 @@ from pipeline.base.sample_functions import top_k
 """
 
 # 测试配置
-test_pip = Pipeline(
+test_pip = build_text_pipeline(
     name="poetry_rnn",
     dataset=PoetryDataset(
         data_dir=str(resolve_path("data/dev/poetry")),
@@ -45,7 +43,7 @@ test_pip = Pipeline(
 )
 
 # 生产配置
-prod_pip = Pipeline(
+prod_pip = build_text_pipeline(
     name="poetry_rnn",
     dataset=PoetryDataset(
         data_dir=str(resolve_path("~/data/Poetry/诗歌数据集")),
@@ -71,8 +69,7 @@ pip_runner = PipelineRunner(test_pip, prod_pip)
 
 def resolve_pipeline():
     """根据环境变量获取 Pipeline 实例"""
-    env = os.environ.get("ENV", "production")
-    return prod_pip if env == "production" else test_pip
+    return resolve_env(test_pip, prod_pip)
 
 
 if __name__ == "__main__":

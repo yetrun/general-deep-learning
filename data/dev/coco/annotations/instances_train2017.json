@@ -1,0 +1,169 @@
+{
+  "info": {
+    "description": "Fake COCO test annotations for YOLO pipeline smoke test"
+  },
+  "licenses": [],
+  "images": [
+    {
+      "id": 1,
+      "width": 640,
+      "height": 480,
+      "file_name": "lunch_box.jpg"
+    },
+    {
+      "id": 2,
+      "width": 640,
+      "height": 480,
+      "file_name": "giraffe.jpg"
+    },
+    {
+      "id": 3,
+      "width": 640,
+      "height": 480,
+      "file_name": "vase.jpg"
+    },
+    {
+      "id": 4,
+      "width": 640,
+      "height": 480,
+      "file_name": "zebra.jpg"
+    },
+    {
+      "id": 5,
+      "width": 640,
+      "height": 480,
+      "file_name": "umbrella.jpg"
+    },
+    {
+      "id": 6,
+      "width": 640,
+      "height": 480,
+      "file_name": "dog.jpg"
+    },
+    {
+      "id": 7,
+      "width": 640,
+      "height": 480,
+      "file_name": "horse.jpg"
+    },
+    {
+      "id": 8,
+      "width": 640,
+      "height": 480,
+      "file_name": "elephant.jpg"
+    }
+  ],
+  "annotations": [
+    {
+      "id": 1,
+      "image_id": 1,
+      "category_id": 1,
+      "bbox": [
+        64,
+        72,
+        180,
+        220
+      ],
+      "area": 39600,
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "image_id": 2,
+      "category_id": 1,
+      "bbox": [
+        64,
+        72,
+        180,
+        220
+      ],
+      "area": 39600,
+      "iscrowd": 0
+    },
+    {
+      "id": 3,
+      "image_id": 3,
+      "category_id": 1,
+      "bbox": [
+        64,
+        72,
+        180,
+        220
+      ],
+      "area": 39600,
+      "iscrowd": 0
+    },
+    {
+      "id": 4,
+      "image_id": 4,
+      "category_id": 1,
+      "bbox": [
+        64,
+        72,
+        180,
+        220
+      ],
+      "area": 39600,
+      "iscrowd": 0
+    },
+    {
+      "id": 5,
+      "image_id": 5,
+      "category_id": 1,
+      "bbox": [
+        64,
+        72,
+        180,
+        220
+      ],
+      "area": 39600,
+      "iscrowd": 0
+    },
+    {
+      "id": 6,
+      "image_id": 6,
+      "category_id": 1,
+      "bbox": [
+        64,
+        72,
+        180,
+        220
+      ],
+      "area": 39600,
+      "iscrowd": 0
+    },
+    {
+      "id": 7,
+      "image_id": 7,
+      "category_id": 1,
+      "bbox": [
+        64,
+        72,
+        180,
+        220
+      ],
+      "area": 39600,
+      "iscrowd": 0
+    },
+    {
+      "id": 8,
+      "image_id": 8,
+      "category_id": 1,
+      "bbox": [
+        64,
+        72,
+        180,
+        220
+      ],
+      "area": 39600,
+      "iscrowd": 0
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "person",
+      "supercategory": "person"
+    }
+  ]
+}

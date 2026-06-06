@@ -13,12 +13,13 @@ from pipeline import Pipeline
 from pipeline.base.checkpoint import describe_checkpoint_lookup, resolve_checkpoint
 from pipeline.base.generation import TextGenerator
 from pipeline.base.model_loader import load_inference_artifact_from_pipeline
+from pipeline.specs.text_pipeline import TextInferenceBundle
 from env.resolve import display_path
 
 
-class AppBuilderFromPipeline:
+class TextGenerationAppBuilder:
     """
-    基于 Pipeline 配置的 Gradio 应用构建器
+    基于 Pipeline 配置的文本 Gradio 应用构建器
     """
 
     def __init__(
@@ -54,6 +55,12 @@ class AppBuilderFromPipeline:
         )
         return load_inference_artifact_from_pipeline(self.pipeline, checkpoint_rule)
 
+    @staticmethod
+    def _require_text_inference_bundle(resource: object) -> TextInferenceBundle:
+        if not isinstance(resource, TextInferenceBundle):
+            raise TypeError("当前文本页面只支持 TextInferenceBundle 推理资源")
+        return resource
+
     def get_model_info(self) -> str:
         """获取模型信息（单行格式）"""
         parts = []
@@ -80,7 +87,8 @@ class AppBuilderFromPipeline:
             )
 
         # 词汇表大小
-        tokenizer_info = self.pipeline.dataset.tokenizer_bundle()
+        _, resource = self._load_inference_artifact()
+        tokenizer_info = self._require_text_inference_bundle(resource).tokenizer_bundle
         vocab_size = tokenizer_info.vocab_size
         if tokenizer_info.vocab_path:
             parts.append(
@@ -94,7 +102,8 @@ class AppBuilderFromPipeline:
     def _init_generator(self) -> TextGenerator:
         """初始化 GPT 生成器"""
         print("正在加载模型和分词器...")
-        inference_artifact, tokenizer_info = self._load_inference_artifact()
+        inference_artifact, resource = self._load_inference_artifact()
+        tokenizer_info = self._require_text_inference_bundle(resource).tokenizer_bundle
         print("模型加载完成！")
         generator = TextGenerator(
             artifact=inference_artifact,

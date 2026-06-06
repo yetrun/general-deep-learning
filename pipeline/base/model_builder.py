@@ -29,7 +29,7 @@ GenerateFn = Callable[[GenerationContext, list[int]], GenerationResult]
 @dataclass
 class ModelArtifact:
     model: keras.Model
-    generate: GenerateFn
+    generate: GenerateFn | None = None
 
 
 class ModelBuilder(Protocol):

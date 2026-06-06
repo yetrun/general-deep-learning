@@ -4,19 +4,17 @@
 用于训练Mini GPT模型的脚本。
 """
 
-import os
-from pathlib import Path
 
 from data import WikiDataset
-from env.resolve import resolve_path, resolve_saved
+from env.resolve import resolve_env, resolve_path, resolve_saved
 from models.mini_gpt import GptModelBuilder
-from pipeline import CheckpointConfig, Pipeline, PipelineRunner
+from pipeline import CheckpointConfig, PipelineRunner, build_text_pipeline
 from pipeline.base.configs import CheckpointRules, GenerationRule, TrainingRule
 from pipeline.base.prompts_strategy import fixed_prompts
 from pipeline.base.sample_functions import top_k
 
 # 测试配置
-test_pip = Pipeline(
+test_pip = build_text_pipeline(
     name="wiki_gpt",
     dataset=WikiDataset(
         data_dir=str(resolve_path("data/dev/mini_c4")), tokenizer_type="character"
@@ -38,7 +36,7 @@ test_pip = Pipeline(
 )
 
 # 生产配置
-prod_pip = Pipeline(
+prod_pip = build_text_pipeline(
     name="wiki_gpt",
     dataset=WikiDataset(
         data_dir=str(resolve_path("~/data/wiki/mini_c4")), tokenizer_type="sentence_piece"
@@ -67,8 +65,7 @@ pip_runner = PipelineRunner(test_pip, prod_pip)
 
 def resolve_pipeline():
     """根据环境变量获取 Pipeline 实例"""
-    env = os.environ.get("ENV", "production")
-    return prod_pip if env == "production" else test_pip
+    return resolve_env(test_pip, prod_pip)
 
 
 if __name__ == "__main__":

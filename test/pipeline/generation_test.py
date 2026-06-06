@@ -1,47 +1,46 @@
 from unittest.mock import Mock
 
+import pytest
+
 from pipeline.base.configs import CheckpointRules
-from pipeline.base.generation import GenerationResult, TextGenerator
+from pipeline.base.generation import GenerationResult
 from pipeline.base.generation_runner import BaseGenerationRunner
 from pipeline.base.model_builder import ModelArtifact
-from test.pipeline.helpers import create_pipeline
+from pipeline.specs.text_pipeline import TextInferenceBundle
+from test.pipeline.helpers import DummyDataset, create_pipeline, sample_one
 
 
 class DummyGenerationRunner(BaseGenerationRunner):
     # 提供最小生成 runner，复用真实的 run_fixed 流程
     title = "测试生成器"
     fixed_prompts = ["白日依山尽", "床前明月光"]
-
-    def _build_generator(self) -> TextGenerator:
-        # 按真实流程读取 testing checkpoint 规则并构造 TextGenerator
-        checkpoint_rule = self.pipeline.checkpoint_rules.resolve_testing_rule(
-            default_dirs=[self.pipeline.checkpoint_dir]
-        )
-        artifact, tokenizer_info = self.loader(self.pipeline, checkpoint_rule)
-        return TextGenerator(
-            artifact=artifact,
-            tokenizer=tokenizer_info.tokenizer,
-            decode=tokenizer_info.decode,
-            end_of_text=tokenizer_info.end_of_text,
-            max_length=16,
-            sample_fn=self.pipeline.generation_rule.sample_strategy
-        )
+    max_length = 16
 
 
-def test_generation_runner_runs_generation_flow(tmp_path, capsys):
+def test_generation_runner_runs_generation_flow(tmp_path, capsys, monkeypatch):
     # 构造最小 pipeline，固定生成参数与 checkpoint 规则
     pipeline = create_pipeline(tmp_path / "task", Mock(), CheckpointRules())
     log_config = Mock()
-    pipeline.log_config = log_config
+    # ASK: monkeypatch 是什么？
+    monkeypatch.setattr(
+        "pipeline.pipeline.Pipeline.log_config",
+        lambda self: log_config()
+    )
 
     # 构造可控的推理产物，避免真实加载模型与推理
     artifact = ModelArtifact(
         model=Mock(),
         generate=Mock(return_value=GenerationResult([7, 8], "<|stop|>"))
     )
-    expected_tokenizer_info = pipeline.dataset.tokenizer_bundle()
-    loader = Mock(return_value=(artifact, expected_tokenizer_info))
-    DummyGenerationRunner.loader = loader
+    dataset = DummyDataset(data_dir="unused", sequence_length=16)
+    expected_resource = TextInferenceBundle(
+        tokenizer_bundle=dataset.tokenizer_bundle(),
+        docs_ds=dataset.doc_ds(),
+        max_length=16,
+        sample_fn=sample_one
+    )
+    loader = Mock(return_value=(artifact, expected_resource))
+    monkeypatch.setattr("pipeline.base.generation_runner.load_inference_artifact_from_pipeline", loader)
 
     # 执行固定 prompts 的生成流程
     runner = DummyGenerationRunner(lambda: pipeline)
@@ -66,4 +65,51 @@ def test_generation_runner_runs_generation_flow(tmp_path, capsys):
     output = capsys.readouterr().out
     assert "白日依山尽" in output
     assert "床前明月光" in output
+    assert "78<|stop|>" in output
+
+
+def test_text_pipeline_rejects_task_specific_attribute_write(tmp_path):
+    """验证文本流水线不会允许临时写入任务专属配置。"""
+    pipeline = create_pipeline(tmp_path / "task", Mock(), CheckpointRules())
+
+    with pytest.raises((AttributeError, TypeError)):
+        pipeline.dataset = Mock()
+
+    with pytest.raises((AttributeError, TypeError)):
+        pipeline.generation_rule = Mock()
+
+
+def test_generation_runner_random_prompts_use_text_inference_bundle(tmp_path, capsys, monkeypatch):
+    """验证随机提示生成会使用文本推理资源中的文档流。"""
+    pipeline = create_pipeline(tmp_path / "task", Mock(), CheckpointRules())
+    monkeypatch.setattr(
+        "pipeline.pipeline.Pipeline.log_config",
+        lambda self: None
+    )
+    artifact = ModelArtifact(
+        model=Mock(),
+        generate=Mock(return_value=GenerationResult([7, 8], "<|stop|>"))
+    )
+    dataset = DummyDataset(data_dir="unused", sequence_length=16)
+    resource = TextInferenceBundle(
+        tokenizer_bundle=dataset.tokenizer_bundle(),
+        docs_ds=dataset.doc_ds(),
+        max_length=16,
+        sample_fn=sample_one
+    )
+    loader = Mock(return_value=(artifact, resource))
+    monkeypatch.setattr(
+        "pipeline.base.generation_runner.load_inference_artifact_from_pipeline",
+        loader
+    )
+    monkeypatch.setattr(
+        "pipeline.base.generation_runner.random_prompts",
+        lambda **kwargs: lambda docs_ds: ["abc"]
+    )
+
+    runner = DummyGenerationRunner(lambda: pipeline)
+    runner.run_random()
+
+    output = capsys.readouterr().out
+    assert "abc" in output
     assert "78<|stop|>" in output

@@ -1,10 +1,11 @@
 
+import keras
 import tensorflow as tf
 from unittest.mock import Mock
 
-from env import resolve as resolve_module
 from models.mini_gpt import GptModelBuilder
-from pipeline.base.model_loader import _load_keras_model
+from pipeline import pipeline as pipeline_module
+from pipeline.specs.text_pipeline import text_custom_objects
 from test.pipeline.helpers import create_pipeline, save_training_checkpoint
 
 
@@ -18,7 +19,7 @@ def test_save_inference_model_runs_save_flow(tmp_path, monkeypatch):
     )
     pipeline = create_pipeline(tmp_path / "task", builder)
     log_config = Mock()
-    pipeline.log_config = log_config
+    monkeypatch.setattr("pipeline.pipeline.Pipeline.log_config", lambda self: log_config())
 
     # 先写入训练权重，作为后续导出推理模型的输入检查点
     save_training_checkpoint(
@@ -28,14 +29,17 @@ def test_save_inference_model_runs_save_flow(tmp_path, monkeypatch):
 
     # 将保存目录重定向到临时目录，避免污染仓库默认路径
     monkeypatch.setattr(
-        resolve_module,
+        pipeline_module,
         "resolve_saved",
         lambda path=None: tmp_path / path if path else tmp_path
     )
 
     # 执行推理模型导出，并重新加载验证文件可用
     model_path = pipeline.save_inference_model()
-    loaded_model = _load_keras_model(model_path)
+    loaded_model = keras.models.load_model(
+        str(model_path),
+        custom_objects=text_custom_objects()
+    )
     outputs = loaded_model(tf.constant([[2, 3, 4]], dtype="int32"), training=False)
 
     # 验证保存模型流程启动时会先打印 config

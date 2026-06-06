@@ -77,6 +77,11 @@ class TextGenerationResult:
 
 
 class TextGenerator:
+    """文本任务的推理工具
+
+    它负责把模型和文本推理配套资源真正用起来，完成一次文本生成。
+    """
+
     def __init__(
         self,
         artifact: ModelArtifact,

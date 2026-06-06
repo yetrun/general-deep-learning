@@ -154,20 +154,59 @@ def my_function(
 
 ## 运行单元测试
 
-本项目使用 pytest 运行单元测试，必须在 `mini-gpt` conda 环境中执行。
+本项目使用 pytest 运行单元测试，必须在 `general-dl` conda 环境中执行。
 
 ### 运行命令
 
 ```bash
-/Users/run/anaconda3/envs/mini-gpt/bin/python -m pytest test/ -v
+env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy /Users/run/anaconda3/envs/general-dl/bin/python -m pytest test/ -v
 ```
 
 ### 重要提示
 
-1. **必须使用 mini-gpt 环境** - 基础环境缺少 tensorflow 依赖，会导致测试收集失败
-2. **不要添加 `pytest.importorskip("tensorflow")`** - 这些测试依赖 tensorflow，跳过会掩盖真正的问题
+1. **必须使用 general-dl 环境** - 其他环境可能缺少 tensorflow 等依赖，会导致测试收集失败
+2. **执行脚本前先去掉代理环境变量** - 避免 gradio、httpx 等依赖因为代理配置报错
+3. **不要添加 `pytest.importorskip("tensorflow")`** - 这些测试依赖 tensorflow，跳过会掩盖真正的问题
+
+### 单元测试注释规范
+
+- 每个 `test_` 测试函数都应该在函数体第一行写测试意图说明
+- 测试意图说明使用 `"""..."""` 文档字符串格式，不使用普通 `#` 注释
+- 注释内容说明“这个测试验证什么行为”，不要写成执行步骤流水账
+- 已有文档字符串时，优先调整第一句来表达测试意图，不要额外重复添加注释
+
+```python
+def test_training_ds_builds_segmentation_images_and_masks(tmp_path):
+    """验证训练数据集会输出调整尺寸后的图片和类别掩码。"""
+    images, masks = next(iter(dataset.training_ds(batch_size=2)))
+
+    assert images.shape == (2, 6, 6, 3)
+    assert masks.shape == (2, 6, 6, 1)
+```
 
 ## Python 代码风格
+
+### 文件注释规范
+
+对于“按文件承载单一职责”的文件，应补充文件级注释，说明这个文件为什么存在。
+
+- 如果一个文件集中定义了一组抽象、上下文对象、装配逻辑或同类实现，应该在文件顶部写文件注释
+- 如果一个文件只放一个核心类或一种默认实现，也应该在文件顶部写文件注释
+- 文件注释要优先说明“这个文件在整体结构里的职责”，不要只重复类名或模块名
+- 文件注释要说明这个文件放的是什么、为什么放在这里、通常由谁调用或装配
+- 文件注释保持简洁，通常 2 到 5 行即可，不要写成长篇设计文档
+- 纯类型转发文件或 `__init__.py` 这类入口文件，如果它们的存在目的不明显，也应该补文件注释说明用途
+
+推荐风格：
+
+```python
+"""
+流水线阶段抽象定义。
+
+这个文件只放“阶段接口”，不放具体业务实现。
+Pipeline 会把一次训练或导出流程拆成多个固定阶段，这里的抽象基类就是这些阶段共同遵守的形状。
+"""
+```
 
 ### 禁止尾逗号
 

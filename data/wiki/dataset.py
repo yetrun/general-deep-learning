@@ -1,6 +1,6 @@
 """Wiki 数据集主模块
 
-实现 WikiDataset 类，继承自 DataBundle。
+实现 WikiDataset 类，继承自 TextDataBundle。
 """
 
 import pathlib
@@ -9,14 +9,14 @@ from typing import Optional
 
 import tensorflow as tf
 
-from data.base import DataBundle, TokenizerBundle
+from data.base import TextDataBundle, TokenizerBundle
 from data.wiki.loader import doc_load
 from data.wiki.transformer import transform
 from data.wiki.tokenizer import sentence_piece, character_vectorization
 
 
 @dataclass
-class WikiDataset(DataBundle):
+class WikiDataset(TextDataBundle):
     """Wiki 数据集
 
     将文档加载、分词、统计等功能绑定在一起的数据集类。

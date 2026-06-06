@@ -3,14 +3,14 @@ from dataclasses import dataclass
 
 import tensorflow as tf
 
-from data.base import DataBundle, TokenizerBundle
+from data.base import TextDataBundle, TokenizerBundle
+from pipeline import Pipeline, build_text_pipeline
 from pipeline.base.configs import GenerationRule, TrainingRule
-from pipeline.pipeline import Pipeline
 
 
 @dataclass
-class DummyDataset(DataBundle):
-    """测试专用的最小数据集，实现 Pipeline 所需的 DataBundle 接口。"""
+class DummyDataset(TextDataBundle):
+    """测试专用的最小数据集，实现 Pipeline 所需的 TextDataBundle 接口。"""
 
     def doc_ds(self) -> tf.data.Dataset:
         return tf.data.Dataset.from_tensor_slices(["abc"])
@@ -40,7 +40,7 @@ def create_pipeline(task_dir: pathlib.Path, model_builder, checkpoint_rules=None
     if checkpoint_rules is not None:
         kwargs["checkpoint_rules"] = checkpoint_rules
 
-    return Pipeline(
+    return build_text_pipeline(
         name="test_task",
         dataset=DummyDataset(data_dir="unused", sequence_length=16),
         model_builder=model_builder,

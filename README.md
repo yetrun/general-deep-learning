@@ -29,7 +29,7 @@ short_description: General Deep Learning is a practical deep learning experimen
 - ✅ **完整的训练闭环** - 从数据处理到部署，全流程透明
 -
 **🔧 技术特性**
-- ✅ **覆盖主流模型** - Transformer、RNN，未来将扩展至 CNN、Diffusion 等
+- ✅ **覆盖主流模型** - Transformer、RNN、CNN，已扩展至图像分类、分割、目标检测
 - ✅ **模块化架构** - 可插拔设计，新模型/新数据集快速接入
 - ✅ **生产级部署** - 一键部署到 Hugging Face，支持断点续训、TensorBoard 监控
 
@@ -42,11 +42,14 @@ short_description: General Deep Learning is a practical deep learning experimen
 **已完成功能**：
 - Wiki GPT - 基于中文维基的手写 Transformer
 - 诗歌生成器 - GPT 和 RNN 双版本对比
+- 猫狗图片分类 - 基于 CNN 的图像分类
+- Oxford Pets 图像分割 - 基于 U-Net 的语义分割
+- YOLO 目标检测 - 基于 YOLO 的单阶段目标检测
 
 **未来规划**：
-4 月有事不再投入，5 月开始计划每月新增一个模型，探索更多架构（CNN、Diffusion...）
+5 月已新增 CV 方向模型（图像分类、分割、目标检测），计划继续探索更多架构（Diffusion...）
 
-- 🔮 逐步扩展至 CV、多模态等领域
+- 🔮 逐步扩展至多模态等领域
 - 🔮 保持"从零手撸"的风格，让每个新模型都成为学习素材
 
 **欢迎一起折腾** —— 反馈问题、贡献代码，或单纯聊聊技术！
@@ -62,6 +65,9 @@ short_description: General Deep Learning is a practical deep learning experimen
 - **Wiki GPT 文本生成**：基于 Transformer 架构的中文文本生成，训练数据来自中文维基语料库
 - **诗歌生成器（GPT）**：基于 Transformer 的中文诗歌生成，支持五言、七言诗等
 - **诗歌生成器（RNN）**：基于 RNN 架构的中文诗歌生成，支持五言、七言诗等
+- **猫狗图片分类**：基于 CNN 的图像分类模型，支持上传图片识别猫或狗
+- **Oxford Pets 图像分割**：基于 U-Net 的语义分割模型，支持上传图片查看分割结果
+- **YOLO 目标检测**：基于 YOLO 的单阶段目标检测模型，支持上传图片检测物体
 
 ## 部署说明
 
@@ -104,6 +110,26 @@ conda env update -f <environment.yml> --prune
 > pip uninstall tensorflow-text -y
 > pip install --no-cache-dir --force-reinstall tensorflow-text==2.20.0
 > ```
+
+### Conda 环境变量
+
+首先，不同的按照环境对应不同的环境变量（`environment.yml` / `environments-linux.yml`），上文提过。
+
+其次，为某个环境永久设置环境变量的方式：
+
+```bash
+conda env config vars set ENV=production
+
+# 还需要重新激活
+conda deactivate
+conda activate general-dl
+```
+
+最后，如果你只是想临时在当前命令前使用：
+
+```bash
+ENV=production python your_script.py
+```
 
 ### 开发工具配置
 
